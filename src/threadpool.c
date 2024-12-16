@@ -55,7 +55,7 @@ zv_threadpool_t *threadpool_init(int thread_num) {
             threadpool_destroy(pool, 0);
             return NULL;
         }
-        log_info("thread: %08x started", (uint32_t) pool->threads[i]);
+        log_infof("thread: %08x started", (uint32_t) pool->threads[i]);
 
         pool->thread_count++;
         pool->started++;
@@ -171,7 +171,7 @@ int threadpool_destroy(zv_threadpool_t *pool, int graceful) {
             if (pthread_join(pool->threads[i], NULL) != 0) {
                 err = zv_tp_thread_fail;
             }
-            log_info("thread %08x exit", (uint32_t) pool->threads[i]);
+            log_infof("thread %08x exit", (uint32_t) pool->threads[i]);
         }
              
     } while(0);

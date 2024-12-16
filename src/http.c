@@ -66,13 +66,13 @@ void do_request(void *ptr) {
 
         if (n == 0) {   
             // EOF
-            log_info("read return 0, ready to close fd %d, remain_size = %zu", fd, remain_size);
+            log_infof("read return 0, ready to close fd %d, remain_size = %zu", fd, remain_size);
             goto err;
         }
 
         if (n < 0) {
             if (errno != EAGAIN) {
-                log_err("read err, and errno = %d", errno);
+                log_errf("read err, and errno = %d", errno);
                 goto err;
             }
             break;
@@ -90,8 +90,8 @@ void do_request(void *ptr) {
             goto err;
         }
 
-        log_info("method == %.*s", (int)(r->method_end - r->request_start), (char *)r->request_start);
-        log_info("uri == %.*s", (int)(r->uri_end - r->uri_start), (char *)r->uri_start);
+        log_infof("method == %.*s", (int)((char *)r->method_end - (char *)r->request_start), (char *)r->request_start);
+        log_infof("uri == %.*s", (int)((char *)r->uri_end - (char *)r->uri_start), (char *)r->uri_start);
 
         debug("ready to parse request body");
         rc = zv_http_parse_request_body(r);
@@ -114,7 +114,7 @@ void do_request(void *ptr) {
         rc = zv_init_out_t(out, fd);
         check(rc == ZV_OK, "zv_init_out_t");
 
-        parse_uri(r->uri_start, r->uri_end - r->uri_start, filename, NULL);
+        parse_uri(r->uri_start, (char *)r->uri_end - (char *)r->uri_start, filename, NULL);
 
         if(stat(filename, &sbuf) < 0) {
             do_error(fd, filename, "404", "Not Found", "zaver can't find the file");
@@ -170,10 +170,10 @@ static void parse_uri(char *uri, int uri_length, char *filename, char *querystri
     int file_length;
     if (question_mark) {
         file_length = (int)(question_mark - uri);
-        debug("file_length = (question_mark - uri) = %d", file_length);
+        debugf("file_length = (question_mark - uri) = %d", file_length);
     } else {
         file_length = uri_length;
-        debug("file_length = uri_length = %d", file_length);
+        debugf("file_length = uri_length = %d", file_length);
     }
 
     if (querystring) {
@@ -184,11 +184,11 @@ static void parse_uri(char *uri, int uri_length, char *filename, char *querystri
 
     // uri_length can not be too long
     if (uri_length > (SHORTLINE >> 1)) {
-        log_err("uri too long: %.*s", uri_length, uri);
+        log_errf("uri too long: %.*s", uri_length, uri);
         return;
     }
 
-    debug("before strncat, filename = %s, uri = %.*s, file_len = %d", filename, file_length, uri, file_length);
+    debugf("before strncat, filename = %s, uri = %.*s, file_len = %d", filename, file_length, uri, file_length);
     strncat(filename, uri, file_length);
 
     char *last_comp = strrchr(filename, '/');
@@ -201,7 +201,7 @@ static void parse_uri(char *uri, int uri_length, char *filename, char *querystri
         strcat(filename, "index.html");
     }
 
-    log_info("filename = %s", filename);
+    log_infof("filename = %s", filename);
     return;
 }
 
@@ -256,7 +256,7 @@ static void serve_static(int fd, char *filename, size_t filesize, zv_http_out_t 
     sprintf(header, "%s\r\n", header);
 
     n = (size_t)rio_writen(fd, header, strlen(header));
-    check(n == strlen(header), "rio_writen error, errno = %d", errno);
+    checkf(n == strlen(header), "rio_writen error, errno = %d", errno);
     if (n != strlen(header)) {
         log_err("n != strlen(header)");
         goto out; 

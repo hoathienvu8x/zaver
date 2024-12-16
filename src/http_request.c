@@ -72,10 +72,10 @@ void zv_http_handle_header(zv_http_request_t *r, zv_http_out_t *o) {
         for (header_in = zv_http_headers_in; 
             strlen(header_in->name) > 0;
             header_in++) {
-            if (strncmp(hd->key_start, header_in->name, hd->key_end - hd->key_start) == 0) {
+            if (strncmp(hd->key_start, header_in->name, (char *)hd->key_end - (char *)hd->key_start) == 0) {
             
-                //debug("key = %.*s, value = %.*s", hd->key_end-hd->key_start, hd->key_start, hd->value_end-hd->value_start, hd->value_start);
-                len = hd->value_end - hd->value_start;
+                //debugf("key = %.*s, value = %.*s", hd->key_end-hd->key_start, hd->key_start, hd->value_end-hd->value_start, hd->value_start);
+                len = (char *)hd->value_end - (char *)hd->value_start;
                 (*(header_in->handler))(r, o, hd->value_start, len);
                 break;
             }    

@@ -72,12 +72,12 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    debug("conffile = %s", conf_file);
+    debugf("conffile = %s", conf_file);
 
     if (optind < argc) {
         log_err("non-option ARGV-elements: ");
         while (optind < argc)
-            log_err("%s ", argv[optind++]);
+            log_errf("%s ", argv[optind++]);
         return 0;
     }
 
@@ -150,7 +150,7 @@ int main(int argc, char* argv[]) {
     /* epoll_wait loop */
     while (1) {
         time = zv_find_timer();
-        debug("wait time = %d", time);
+        debugf("wait time = %d", time);
         n = zv_epoll_wait(epfd, events, MAXEVENTS, time);
         zv_handle_expire_timers();
         
@@ -176,7 +176,7 @@ int main(int argc, char* argv[]) {
 
                     rc = make_socket_non_blocking(infd);
                     check(rc == 0, "make_socket_non_blocking");
-                    log_info("new connection fd %d", infd);
+                    log_infof("new connection fd %d", infd);
                     
                     zv_http_request_t *request = (zv_http_request_t *)malloc(sizeof(zv_http_request_t));
                     if (request == NULL) {
@@ -196,12 +196,12 @@ int main(int argc, char* argv[]) {
                 if ((events[i].events & EPOLLERR) ||
                     (events[i].events & EPOLLHUP) ||
                     (!(events[i].events & EPOLLIN))) {
-                    log_err("epoll error fd: %d", r->fd);
+                    log_errf("epoll error fd: %d", r->fd);
                     close(fd);
                     continue;
                 }
 
-                log_info("new data from fd %d", fd);
+                log_infof("new data from fd %d", fd);
                 //rc = threadpool_add(tp, do_request, events[i].data.ptr);
                 //check(rc == 0, "threadpool_add");
 

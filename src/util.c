@@ -78,7 +78,7 @@ int make_socket_non_blocking(int fd) {
 int read_conf(char *filename, zv_conf_t *cf, char *buf, int len) {
     FILE *fp = fopen(filename, "r");
     if (!fp) {
-        log_err("cannot open config file: %s", filename);
+        log_errf("cannot open config file: %s", filename);
         return ZV_CONF_ERROR;
     }
 
